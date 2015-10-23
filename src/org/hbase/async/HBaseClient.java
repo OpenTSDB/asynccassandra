@@ -2,7 +2,6 @@ package org.hbase.async;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -460,14 +459,6 @@ public class HBaseClient {
   
   public ByteMap<Integer> getNsreCounts() {
     return new ByteMap<Integer>();
-  }
-  
-  public Collection<NSREEvent> flushNSREEvents() {
-    return Collections.EMPTY_LIST;
-  }
-  
-  public Collection<NSREEvent> inspectNSREEvents() {
-    return Collections.EMPTY_LIST;
   }
   
   /**
