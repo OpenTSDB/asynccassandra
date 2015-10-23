@@ -261,9 +261,11 @@ public class HBaseClient {
     }
     
     final Keyspace keyspace = getContext(edit.table);
+    final ColumnFamily<byte[], String> cf = 
+        Bytes.memcmp("id".getBytes(), edit.family) == 0 ? 
+            TSDB_UID_ID_CAS : TSDB_UID_NAME_CAS;
     ColumnPrefixDistributedRowLock<byte[]> lock = 
-        new ColumnPrefixDistributedRowLock<byte[]>(keyspace, 
-            Bytes.memcmp("id".getBytes(), edit.family) == 0 ? TSDB_UID_ID_CAS : TSDB_UID_NAME_CAS,
+        new ColumnPrefixDistributedRowLock<byte[]>(keyspace, cf,
             edit.key)
             .withBackoff(new BoundedExponentialBackoff(250, 10000, 10))
             .expireLockAfter(lock_timeout, TimeUnit.MILLISECONDS);
@@ -271,7 +273,7 @@ public class HBaseClient {
       final ColumnMap<String> columns = lock.acquireLockAndReadRow();
       final String qualifier = new String(edit.qualifier());
       final MutationBatch mutation = keyspace.prepareMutationBatch();
-      mutation.withRow(TSDB_UID_ID_CAS, edit.key)
+      mutation.withRow(cf, edit.key)
         .putColumn(qualifier, edit.value(), null);
       
       if (columns.get(qualifier) == null && (expected == null || expected.length < 1)) {
@@ -283,11 +285,6 @@ public class HBaseClient {
         lock.releaseWithMutation(mutation);
         return Deferred.fromResult(true);
       }
-      
-      System.out.println("Expected = " + Arrays.toString(expected));
-      System.out.println("Got: " + Arrays.toString(
-          columns.get(qualifier) != null ? 
-              columns.get(qualifier).getByteArrayValue() : null));
       
       try {
         lock.release();
