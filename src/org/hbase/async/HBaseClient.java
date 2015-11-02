@@ -98,12 +98,18 @@ public class HBaseClient {
   
   public HBaseClient(final Config config) {
     this.config = config;
+    if (config.getString("asynccassandra.seeds") == null || 
+        config.getString("asynccassandra.seeds").isEmpty()) {
+      throw new IllegalArgumentException(
+          "Missing required config 'asynccassandra.seeds'");
+    }
+    
     ast_config = new AstyanaxConfigurationImpl()      
       .setDiscoveryType(NodeDiscoveryType.RING_DESCRIBE);
     pool = new ConnectionPoolConfigurationImpl("MyConnectionPool")
-      .setPort(9160)
+      .setPort(config.getInt("assynccassandra.port"))
       .setMaxConnsPerHost(1)
-      .setSeeds("127.0.0.1:9160");
+      .setSeeds(config.getString("asynccassandra.seeds"));
     monitor = new CountingConnectionPoolMonitor();
     
     tsdb_table = config.getString("tsd.storage.hbase.data_table").getBytes();
