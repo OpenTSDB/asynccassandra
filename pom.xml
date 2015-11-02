@@ -1,14 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <groupId>net.opentsdb</groupId>
     <artifactId>asynccassandra</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Asynchronous Cassandra Client</name>
-    <description>Cassandra backend shim for OpenTSDB</description>
+    
+    <organization>
+        <name>The Async Cassandra Authors</name>
+        <url>http://opentsdb.net</url>
+    </organization>
+    
+    <description>
+        An alternative client for connecting OpenTSDB to Cassandra via the AsyncHBase API
+    </description>
+    
+    <url>https://github.com/OpenTSDB/asynccassandra</url>
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>http://www.opensource.org/licenses/BSD-3-Clause</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <scm>
+        <connection>scm:git:git@github.com:OpenTSDB/asynccassandra.git</connection>
+        <url>https://github.com/OpenTSDB/asynccassandra</url>
+    </scm>
+    
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/OpenTSDB/asynccassandra/issues</url>
+    </issueManagement>
+    
+    <mailingLists>
+        <mailingList>
+            <name>User List</name>
+            <post>asynchbase@googlegroups.com</post>
+            <subscribe>asynchbase+subscribe@googlegroups.com</subscribe>
+            <unsubscribe>asynchbase+unsubscribe@googlegroups.com</unsubscribe>
+            <archive>https://groups.google.com/group/asynchbase</archive>
+        </mailingList>
+    </mailingLists>
+    
+    <developers>
+      <developer>
+        <id>tsuna</id>
+        <name>Benoit "tsuna" Sigoure</name>
+        <email>tsunanet@gmail.com</email>
+        <roles>
+          <role>developer</role>
+        </roles>
+        <timezone>-8</timezone>
+      </developer>
+      
+      <developer>
+        <id>manolama</id>
+        <name>Chris Larsen</name>
+        <email>clarsen@yahoo-inc.com</email>
+        <roles>
+          <role>developer</role>
+        </roles>
+        <timezone>-8</timezone>
+      </developer>
+    </developers>
+    
+    <inceptionYear>2015</inceptionYear>
+    
+    <distributionManagement>
+      <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+    </distributionManagement>
     
     <build>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
+        <sourceDirectory>src</sourceDirectory>
         
         <extensions>
             <extension>
@@ -81,6 +150,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <plugin>
+              <groupId>org.sonatype.plugins</groupId>
+              <artifactId>nexus-staging-maven-plugin</artifactId>
+              <version>1.6.6</version>
+              <extensions>true</extensions>
+              <configuration>
+                <serverId>ossrh</serverId>
+                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              </configuration>
             </plugin>
         </plugins>
     </build>
@@ -208,4 +289,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    
+    <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+      <!--Empty relativePath is workaround.  See MNG-4687-->
+      <relativePath></relativePath>
+    </parent>
 </project>
