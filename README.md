@@ -24,3 +24,12 @@ Maven has been adopted as the building tool for this project. To produce jar fil
 
     mvn clean package
 
+For OpenTSDB, make sure you're using version 2.3 from GitHub (as of 11/2/2015 the "put" branch) and compile with
+
+```
+sh build-cassandra.sh
+````
+
+## Configuration
+
+In your opentsdb.conf file, set ``asynccassandra.seeds`` to the proper value for your Cassandra cluster. E.g. ``asynccassandra.seeds=127.0.0.1:9160``
