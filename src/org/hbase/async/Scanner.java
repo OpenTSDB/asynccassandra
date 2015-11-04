@@ -697,7 +697,7 @@ public final class Scanner implements Runnable {
    * @see #setMaxNumKeyValues
    */
   public Deferred<ArrayList<ArrayList<KeyValue>>> nextRows() {
-    HBaseClient.scans.incrementAndGet();
+    client.incrementScans();
     deferred = new Deferred<ArrayList<ArrayList<KeyValue>>>();
     executor.execute(this);
     return deferred;

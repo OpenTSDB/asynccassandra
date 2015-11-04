@@ -579,6 +579,10 @@ public class HBaseClient {
     return keyspace;
   }
 
+  void incrementScans(){
+    num_scans.incrementAndGet();
+  }
+  
   /**
    * Some arbitrary junk that is unlikely to appear in a real row key.
    * @see probeKey
