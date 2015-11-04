@@ -91,11 +91,34 @@ public class HBaseClient {
   final byte[] tsdb_uid_table;
   final int lock_timeout = 5000;
   
-  final AtomicLong puts = new AtomicLong();
-  final AtomicLong gets = new AtomicLong();
-  final AtomicLong scanners_opened = new AtomicLong();
-  static final AtomicLong scans = new AtomicLong();
+  //------------------------ //
+  // Client usage statistics. //
+  // ------------------------ //
   
+  /** Number of calls to {@link #flush}.  */
+  private final AtomicLong num_flushes = new AtomicLong();
+  
+  /** Number of calls to {@link #get}.  */
+  private final AtomicLong num_gets = new AtomicLong();
+  
+  /** Number of calls to {@link #openScanner}.  */
+  private final AtomicLong num_scanners_opened = new AtomicLong();
+  
+  /** Number of calls to {@link #scanNextRows}.  */
+  private final AtomicLong num_scans = new AtomicLong();
+  
+  /** Number calls to {@link #put}.  */
+  private final AtomicLong num_puts = new AtomicLong();
+   
+  /** Number calls to {@link #lockRow}.  */
+  private final AtomicLong num_row_locks = new AtomicLong();
+   
+  /** Number calls to {@link #delete}.  */
+  private final AtomicLong num_deletes = new AtomicLong();
+  
+  /** Number of {@link AtomicIncrementRequest} sent.  */
+  private final AtomicLong num_atomic_increments = new AtomicLong();
+
   public HBaseClient(final Config config) {
     this.config = config;
     if (config.getString("asynccassandra.seeds") == null || 
@@ -125,6 +148,7 @@ public class HBaseClient {
   }
   
   public Deferred<ArrayList<KeyValue>> get(final GetRequest request) {
+    num_gets.incrementAndGet();
     final Keyspace keyspace = getContext(request.table);
     if (request.family() == null) {
       throw new UnsupportedOperationException(
@@ -184,6 +208,7 @@ public class HBaseClient {
   }
   
   public Deferred<Object> put(final PutRequest request) {
+    num_puts.incrementAndGet();
     // TODO how do we batch?
     final Keyspace keyspace = getContext(request.table);
     final Deferred<Object> deferred = new Deferred<Object>();
@@ -223,6 +248,7 @@ public class HBaseClient {
   }
   
   public Deferred<Object> delete(final DeleteRequest request) {
+    num_deletes.incrementAndGet();
     // TODO how do we batch?
     final Keyspace keyspace = getContext(request.table);
     final Deferred<Object> deferred = new Deferred<Object>();
@@ -261,6 +287,7 @@ public class HBaseClient {
   
   public Deferred<Boolean> compareAndSet(final PutRequest edit,
       final byte[] expected) {
+    
     if (Bytes.memcmp(tsdb_uid_table, edit.table) != 0) {
       return Deferred.fromError(new UnsupportedOperationException(
           "Increments are not supported on other tables yet"));
@@ -276,6 +303,7 @@ public class HBaseClient {
             .withBackoff(new BoundedExponentialBackoff(250, 10000, 10))
             .expireLockAfter(lock_timeout, TimeUnit.MILLISECONDS);
     try {
+      num_row_locks.incrementAndGet();
       final ColumnMap<String> columns = lock.acquireLockAndReadRow();
       final String qualifier = new String(edit.qualifier());
       final MutationBatch mutation = keyspace.prepareMutationBatch();
@@ -310,6 +338,7 @@ public class HBaseClient {
   
   // TODO - async me!
   public Deferred<Long> atomicIncrement(final AtomicIncrementRequest request) {
+    num_atomic_increments.incrementAndGet();
     if (Bytes.memcmp(tsdb_uid_table, request.table) != 0) {
       return Deferred.fromError(new UnsupportedOperationException(
           "Increments are not supported on other tables yet"));
@@ -322,6 +351,7 @@ public class HBaseClient {
             .withBackoff(new BoundedExponentialBackoff(250, 10000, 10))
             .expireLockAfter(lock_timeout, TimeUnit.MILLISECONDS);
     try {
+      num_row_locks.incrementAndGet();
       final ColumnMap<String> columns = lock.acquireLockAndReadRow();
               
       // Modify a value and add it to a batch mutation
@@ -400,6 +430,7 @@ public class HBaseClient {
   }
   
   public Scanner newScanner(final byte[] table) {
+    num_scanners_opened.incrementAndGet();
     return new Scanner(this, executor, table, getContext(table));
   }
   
@@ -437,14 +468,22 @@ public class HBaseClient {
   }
   
   public ClientStats stats() {
-    return new ClientStats(0, 0, 0, 0, 0, 0, 0, 0, 
-        gets.get(), 
-        scanners_opened.get(), 
-        scans.get(), 
-        puts.get(), 0, 0, 0, 0, null);
+    return new ClientStats(0, 0, 0, 0, 
+        num_flushes.get(), 
+        0, 0, 0, 
+        num_gets.get(), 
+        num_scanners_opened.get(), 
+        num_scans.get(), 
+        num_puts.get(), 
+        0, 
+        num_row_locks.get(), 
+        num_deletes.get(), 
+        num_atomic_increments.get(), 
+        null);
   }
   
   public Deferred<Object> flush() {
+    num_flushes.incrementAndGet();
     return Deferred.fromResult(null);
   }
 

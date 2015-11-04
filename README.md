@@ -33,3 +33,4 @@ sh build-cassandra.sh
 ## Configuration
 
 In your opentsdb.conf file, set ``asynccassandra.seeds`` to the proper value for your Cassandra cluster. E.g. ``asynccassandra.seeds=127.0.0.1:9160``
+Also set ``tsd.storage.hbase.uid_table = tsdbuid`` and ``tsd.storage.hbase.data_table = tsdb``
