@@ -344,7 +344,7 @@ public class Config {
     default_map.put("asynchbase.channel.keep_alive", "true");
     default_map.put("asynchbase.channel.check_write_state", "false");
     
-    default_map.put("assynccassandra.port", "9160");
+    default_map.put("asynccassandra.port", "9160");
     
     for (Map.Entry<String, String> entry : default_map.entrySet()) {
       if (!properties.containsKey(entry.getKey()))

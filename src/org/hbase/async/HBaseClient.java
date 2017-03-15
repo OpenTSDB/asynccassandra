@@ -130,7 +130,7 @@ public class HBaseClient {
     ast_config = new AstyanaxConfigurationImpl()      
       .setDiscoveryType(NodeDiscoveryType.RING_DESCRIBE);
     pool = new ConnectionPoolConfigurationImpl("MyConnectionPool")
-      .setPort(config.getInt("assynccassandra.port"))
+      .setPort(config.getInt("asynccassandra.port"))
       .setMaxConnsPerHost(1)
       .setSeeds(config.getString("asynccassandra.seeds"));
     monitor = new CountingConnectionPoolMonitor();
