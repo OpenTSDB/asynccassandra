@@ -301,6 +301,7 @@ public class HBaseClient {
         new ColumnPrefixDistributedRowLock<byte[]>(keyspace, cf,
             edit.key)
             .withBackoff(new BoundedExponentialBackoff(250, 10000, 10))
+            .withConsistencyLevel(ConsistencyLevel.CL_EACH_QUORUM)
             .expireLockAfter(lock_timeout, TimeUnit.MILLISECONDS);
     try {
       num_row_locks.incrementAndGet();
