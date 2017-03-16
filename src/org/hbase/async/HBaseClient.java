@@ -308,6 +308,7 @@ public class HBaseClient {
       final ColumnMap<String> columns = lock.acquireLockAndReadRow();
       final String qualifier = new String(edit.qualifier());
       final MutationBatch mutation = keyspace.prepareMutationBatch();
+      mutation.setConsistencyLevel(ConsistencyLevel.CL_EACH_QUORUM);
       mutation.withRow(cf, edit.key)
         .putColumn(qualifier, edit.value(), null);
       
@@ -362,6 +363,7 @@ public class HBaseClient {
         value = columns.get(qualifier).getLongValue() + 1;
       }
       final MutationBatch mutation = keyspace.prepareMutationBatch();
+      mutation.setConsistencyLevel(ConsistencyLevel.CL_EACH_QUORUM);
       mutation.withRow(TSDB_UID_ID_CAS, request.key)
         .putColumn(qualifier, value, null);
       lock.releaseWithMutation(mutation);
